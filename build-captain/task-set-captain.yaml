@@ -1,0 +1,73 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: set-captain
+spec:
+  params:
+  - name: forDate
+    default: 'today'
+  results:
+  - name: captain
+    description: name/slack handle of chosen build captain
+  workspaces:
+  - name: rotation-roster
+    description: workspace with 'rotation-roster.csv file'
+  steps:
+  - name: find-captain
+    image: python
+    script: |
+      #!/usr/bin/env python3
+
+      import csv
+      from datetime import date
+      print(123123)
+      print("date:"+"$(params.forDate)")
+      def buildCaptianFromRotation(onDate):
+        rotation = {}
+        rotationRoster="$(workspaces.rotation-roster.path)/rotation-roster.csv"
+        print(rotationRoster)
+        with open(rotationRoster) as csv_file:
+          csv_reader = csv.reader(csv_file, delimiter=',')
+          line_count = 0
+          for row in csv_reader:
+            line_count += 1
+            if line_count <=1:
+              continue
+            if row[0] == onDate:
+              if row[1] == "":
+                return None
+              id = row[1].split('@')[1]
+              return id
+          return None
+
+      print("date is: $(params.forDate)")
+      dateParam = "$(params.forDate)"
+      if dateParam == "today":
+        dateParam = date.today().strftime('%Y-%m-%d')
+      print(dateParam)
+      buildCaptainId = buildCaptianFromRotation(dateParam)
+      print(buildCaptainId)
+      if buildCaptainId == None:
+        buildCaptainId = "None"
+      print(buildCaptainId)
+      with open('/data/captain-name', 'w') as f:
+          f.write(buildCaptainId)
+    volumeMounts:
+    - name: data
+      mountPath: /data
+  - name: set-message
+    image: ubuntu
+    script: |
+      #!/usr/bin/env bash
+
+      captain=$(cat /data/captain-name)
+      buildCaptainLog='https://docs.google.com/document/d/1uNnauYSrVcKVRpoVZQ9qHTWBQtINgRWWz_bsm-iDGto/edit'
+      message='Hi :wave: today <@'${captain}'> is the Build Captain :technologist: Build Captain log is here: '${buildCaptainLog}
+      echo ${message} > $(results.captain.path)
+    volumeMounts:
+    - name: data
+      mountPath: /data
+  volumes:
+  - name: data
+    emptyDir: {}
+

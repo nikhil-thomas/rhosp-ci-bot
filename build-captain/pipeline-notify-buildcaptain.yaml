@@ -1,0 +1,39 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: notify-build-captain
+spec:
+  params:
+  - name: forDate
+    default: "today"
+    description: Dater for which the build captain is being assigned
+  workspaces:
+  - name: rotation-roster
+    description: configMap which has 'rotation-roster.csv' file
+  results:
+  - name: build-captain-notification
+    description: copy of the notification send to slack
+    value: $(tasks.set-build-captain-message.results.captain)
+  tasks:
+  - name: set-build-captain-message
+    taskRef:
+      name: set-captain
+    params:
+    - name: forDate
+      value: $(params.forDate)
+    workspaces:
+    - name: rotation-roster
+      workspace: rotation-roster
+  - name: slack-message
+    taskRef:
+      name: send-to-webhook-slack
+    params:
+    - name: bot-name
+      value: iBuildCaptainBot
+    - name: icon-emoji
+      value: ':technologist:'
+    - name: message
+      value: $(tasks.set-build-captain-message.results.captain)
+    - name: webhook-secret
+      value: coreos-pipeline-ci-webhook

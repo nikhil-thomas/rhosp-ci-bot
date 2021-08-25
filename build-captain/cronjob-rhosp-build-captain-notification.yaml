@@ -1,0 +1,26 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: trigger-build-captain-notify
+spec:
+  schedule: "30 1 * * 1-5"
+  successfulJobsHistoryLimit: 4
+  jobTemplate:
+    spec:
+      completions: 1
+      parallelism: 1
+      template:
+        spec:
+          containers:
+          - name: trigger-pipeline
+            image: gcr.io/tekton-releases/dogfooding/tkn:latest
+            imagePullPolicy: IfNotPresent
+            command:
+            - tkn
+            - pipeline
+            - start
+            - notify-build-captain
+            - --param=forDate=today
+            - --workspace=name=rotation-roster,config=rotation-roster
+            - --namespace=default
+          restartPolicy: OnFailure
