@@ -1,0 +1,27 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: trigger-release-milestones-notify
+spec:
+  schedule: "30 4 * * 1-5"
+  successfulJobsHistoryLimit: 4
+  jobTemplate:
+    spec:
+      completions: 1
+      parallelism: 1
+      template:
+        spec:
+          containers:
+          - name: trigger-pipeline
+            image: gcr.io/tekton-releases/dogfooding/tkn:latest
+            imagePullPolicy: IfNotPresent
+            command:
+            - tkn
+            - pipeline
+            - start
+            - notify-release-milestones
+            - --param=releaseDataFile=rhosp-release-latest.yaml
+            - --workspace=name=release-milestones,config=release-latest
+            - --workspace=name=workarea,emptyDir=
+            - --namespace=default
+          restartPolicy: OnFailure

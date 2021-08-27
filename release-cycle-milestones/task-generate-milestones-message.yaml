@@ -1,0 +1,66 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: generate-release-milestones
+spec:
+  params:
+  - name: releaseDataFile
+    default: rhosp-release-latest.yaml
+  results:
+  - name: milestones
+    description: dates and days remainign for each milestones
+  workspaces:
+  - name: release-milestones
+    description: workspace with 'rotation-roster.csv file'
+  - name: output
+  steps:
+  - name: generate-milestones
+    image: gcr.io/tekton-releases/dogfooding/yamllint:latest
+    script: |
+      #!/usr/bin/env python3
+
+      from datetime import datetime
+      import yaml
+
+      def countDays(d):
+          # print(d)
+          dObj = datetime.strptime(d, '%Y-%m-%d')
+          todayObj = datetime.now()
+          todayObj = todayObj.replace(hour=0, minute=0, second=0, microsecond=0)
+          delta = dObj - todayObj
+          return delta.days
+
+      def readConfig(filename):
+          with open(filename, 'r') as stream:
+              try:
+                  config = yaml.safe_load(stream)
+                  return config
+              except yaml.YAMLError as exc:
+                  print(exc)
+
+      def generateMessage(config, outputPath):
+          with open(outputPath, 'w') as f:
+              f.write( ":redhatnew::openshift::pipelines: *RED HAT OPENSHFIT PIPELINES - RELEASE " + c["version"] + '* :redhatnew::openshift::pipelines:\n\n')
+
+              f.write( "*Milestones*\n\n")
+              milestones = c["milestones"]
+              for key in milestones:
+                  daysRemaining = countDays(str(milestones[key]))
+                  f.write('*' + key.title() + '* : ' + str(milestones[key]) + '\n')
+                  f.write(str(daysRemaining) + ' days left \n\n')
+
+      configPath = '$(workspaces.release-milestones.path)/$(params.releaseDataFile)'
+      outputPath = '$(workspaces.output.path)/release-milestones'
+
+      c = readConfig(configPath)
+      generateMessage(c, outputPath)
+
+  - name: set-result
+    image: ubuntu
+    script: |
+      #!/usr/bin/env bash
+      echo hello
+      cp '$(workspaces.output.path)/release-milestones' $(results.milestones.path)
+      cat $(results.milestones.path)
+      echo 123
+
