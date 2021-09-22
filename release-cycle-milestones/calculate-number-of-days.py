@@ -24,9 +24,13 @@ def generateMessage(config, outputPath):
         f.write( "*Milestones*\n\n")
         milestones = c["milestones"]
         for key in milestones:
+            message_suffix = "left"
             daysRemaining = countDays(str(milestones[key]))
+            if daysRemaining < 0:
+                message_suffix = "ago"
+                daysRemaining = abs(daysRemaining)
             f.write(key.title() + ' : ' + str(milestones[key]) + '\n')
-            f.write(str(daysRemaining) + ' days left \n\n')
+            f.write(str(daysRemaining) + ' days ' + message_suffix + '\n\n')
 
 configPath = './next-release.yaml'
 outputPath = './release-milestones'
