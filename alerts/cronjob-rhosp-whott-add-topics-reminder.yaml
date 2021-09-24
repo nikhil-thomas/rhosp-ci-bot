@@ -24,18 +24,19 @@ spec:
               :kubernetes::tekton::pipelines::technologist::point_right: *WHOTT! (Weekly Hour of Tekton & Tech)* :point_left::technologist::pipelines::tekton::kubernetes:
 
 
-              <!subteam^S014X6HTR8U> :technologist: Please add topics here: https://docs.google.com/document/d/1-g_qU7OUtxk27yGdPOrQAgy9Nykt7RF1lu2gzfRqH9k/edit?usp=sharing
+              :pipelines::tekton::loud_sound: <!subteam^S014X6HTR8U>
 
-              :virtual-meeting: :point_right: https://meet.google.com/csu-owfi-hbm
+              :virtual-meeting: :point_right: <https://meet.google.com/csu-owfi-hbm|meeting url>
+              :spiral_note_pad: :point_right: <https://docs.google.com/document/d/1-g_qU7OUtxk27yGdPOrQAgy9Nykt7RF1lu2gzfRqH9k/edit?usp=sharing|WHOTT>
 
               :mshourglass::mshourglass::mshourglass::mshourglass::mshourglass:
-
+              ```
               🇫🇷  *Paris*      : Thursday *12:30:00 PM* CEST
               🇺🇸  *Boston*     : Thursday *06:30:00 AM* EDT
               🇦🇺  *Brisbane* : Thursday *08:30:00 PM* AEST
               🇮🇳  *Bangalore*  : Thursday *04:00:00 PM* IST
               🐻  *California* : Thursday *03:30:00 AM* PDT
-
+              ```
               "}' $(cat /data/url)
             volumeMounts:
               - mountPath: /data

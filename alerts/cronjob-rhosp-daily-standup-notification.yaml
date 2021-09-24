@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: rhosp-standup-notify
 spec:
-  schedule: "25 12 * * 1-4"
+  schedule: "15 12 * * 1-4"
   successfulJobsHistoryLimit: 4
   jobTemplate:
     spec:
@@ -23,15 +23,16 @@ spec:
 
               *RHOSP Daily Standup*
 
-              :virtual-meeting: :point_right: https://meet.google.com/zsy-qgby-xdu
-
+              :virtual-meeting: :point_right: <https://meet.google.com/zsy-qgby-xdu|meeting url>
+              :spiral_note_pad: :point_right: <https://docs.google.com/document/d/1ZWmD9kTHkAUDrfynxMuLjzBii0YiBYLRJ1wWRXPMsI4/edit?usp=sharing|discussion topics>
 
               :mshourglass::mshourglass::mshourglass::mshourglass::mshourglass:
-
+              ```
               🇫🇷  Paris      : 02:30:00 PM CEST 2021
               🇺🇸  Boston     : 08:30:00 AM EDT 2021
               🇮🇳  Bangalore  : 06:00:00 PM IST 2021
               🐻  California : 05:30:00 AM PDT 2021
+              ```
 
               "}' $(cat /data/url)
             volumeMounts:
